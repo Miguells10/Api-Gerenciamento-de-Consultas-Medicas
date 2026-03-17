@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.appointments.models import Appointment
 
@@ -11,7 +12,13 @@ from .models import Professional
 class ProfessionalAPITestCase(APITestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="testuser", password="password")
-        self.client.force_authenticate(user=self.user)
+
+        # Obter token JWT para o usuário
+        refresh = RefreshToken.for_user(self.user)
+        self.access_token = str(refresh.access_token)
+
+        # Configurar o cliente para incluir o cabeçalho Authorization
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.access_token}")
         self.list_url = reverse("professional-list")
         self.valid_payload = {
             "social_name": "Dr. House",
@@ -95,7 +102,8 @@ class ProfessionalAPITestCase(APITestCase):
 
     def test_unauthenticated_access(self):
         """Test that unauthenticated users cannot list professionals."""
-        self.client.force_authenticate(user=None)
+        # Limpar as credenciais para este teste específico
+        self.client.credentials()
         response = self.client.get(self.list_url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 

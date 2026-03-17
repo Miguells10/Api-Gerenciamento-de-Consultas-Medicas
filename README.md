@@ -224,11 +224,12 @@ Após iniciar o servidor, acesse:
 poetry run python manage.py test --verbosity=2
 
 # Docker
-docker compose exec web python manage.py test --verbosity=2
+docker compose run --rm web python manage.py test --verbosity=2
 
 # Lint e Formatação (Ruff)
-py -m ruff check .   # Verificar erros
-py -m ruff format .  # Ajustar formatação (estilo Black)
+poetry run ruff check .      # Verificar erros
+poetry run ruff check --fix . # Corrigir erros automaticamente
+poetry run ruff format .     # Ajustar formatação (estilo Black)
 ```
 
 ### Executar com cobertura de código
@@ -253,6 +254,8 @@ poetry run coverage html  # Gera relatório HTML em htmlcov/
 | **Poetry** | Builds determinísticos, lock file garante paridade dev/produção |
 | **Docker multi-stage** | Imagem de produção enxuta sem dependências de build |
 | **Blue/Green deploy** | Rollback instantâneo sem downtime |
+| **Testes com JWT Real** | Testes simulam o fluxo completo de autenticação Bearer, garantindo alinhamento com a segurança real da API |
+| **Configuração Local-First** | `settings.py` prioriza execução local (`localhost`), com overrides automáticos no `docker-compose` para garantir portabilidade total |
 
 ---
 

@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.professionals.models import Professional
 
@@ -14,7 +15,13 @@ from .models import Appointment, AppointmentStatus
 class AppointmentAPITestCase(APITestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="testuser", password="password")
-        self.client.force_authenticate(user=self.user)
+
+        # Obter token JWT para o usuário
+        refresh = RefreshToken.for_user(self.user)
+        self.access_token = str(refresh.access_token)
+
+        # Configurar o cliente para incluir o cabeçalho Authorization
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.access_token}")
         self.professional = Professional.objects.create(
             social_name="Dr. Strange",
             profession="Sorcerer Supreme",
@@ -106,7 +113,8 @@ class AppointmentAPITestCase(APITestCase):
             self.professional.delete()
 
     def test_unauthenticated_appointment_creation(self):
-        self.client.force_authenticate(user=None)
+        # Limpar as credenciais para este teste específico
+        self.client.credentials()
         response = self.client.post(self.list_url, self.valid_payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
