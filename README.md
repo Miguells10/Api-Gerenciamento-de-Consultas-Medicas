@@ -24,6 +24,8 @@ Esta API foi desenvolvida com **Python + Django + Django REST Framework (DRF)**,
 | PostgreSQL 15 | Banco de dados |
 | Poetry | Gerenciamento de dependências |
 | Docker + Docker Compose | Containerização |
+| Gunicorn | Servidor WSGI de Produção |
+| Ruff | Linting e Formatação (Padrão 2025) |
 | GitHub Actions | CI/CD |
 
 ---
@@ -95,7 +97,7 @@ cp .env.example .env
 docker compose up --build
 ```
 
-A API estará disponível em `http://localhost:8000`.
+A API estará disponível em `http://localhost:8000`. O container utiliza **Gunicorn** com **3 workers** para garantir alta performance e concorrência no atendimento das requisições.
 
 ### 3. Crie um superusuário (em outro terminal)
 
@@ -144,6 +146,20 @@ Content-Type: application/json
 
 ```bash
 Authorization: Bearer <access_token>
+```
+
+---
+
+## ⚠️ Padronização de Respostas de Erro
+
+A API utiliza um handler customizado para garantir que **todos** os erros (400, 401, 404, 500) retornem uma estrutura JSON consistente, facilitando o consumo pelo frontend:
+
+```json
+{
+  "status": "error",
+  "message": "Descrição detalhada do erro",
+  "code": "NomeDaExcecao (ex: ValidationError)"
+}
 ```
 
 ---
@@ -215,9 +231,11 @@ poetry run python manage.py test --verbosity=2
 docker compose exec web python manage.py test --verbosity=2
 
 # Lint e Formatação (Ruff)
-py -m ruff check .   # Verificar erros
-py -m ruff format .  # Ajustar formatação (estilo Black)
+uv run ruff check .   # Verificar erros
+uv run ruff check . --fix  # Corrigir automaticamente
 ```
+
+> **Nota:** Todos os testes automatizados utilizam **tokens JWT reais** via `setUp`, simulando fielmente o comportamento de produção.
 
 ### Executar com cobertura de código
 
@@ -239,6 +257,9 @@ poetry run coverage html  # Gera relatório HTML em htmlcov/
 | **PROTECT no FK** | Evita deletar profissionais com consultas ativas acidentalmente |
 | **`select_related`** | Previne queries N+1 nas listagens de consultas |
 | **Poetry** | Builds determinísticos, lock file garante paridade dev/produção |
+| **Gunicorn** | Servidor WSGI profissional com 3 workers simultâneos (escalabilidade) |
+| **Standardized Errors** | Melhora a DX (Developer Experience) e facilita o tratamento no frontend |
+| **Clean Code** | Código sem comentários redundantes e seguindo padrões de estilo modernos |
 | **Docker multi-stage** | Imagem de produção enxuta sem dependências de build |
 | **Blue/Green deploy** | Rollback instantâneo sem downtime |
 
@@ -304,7 +325,7 @@ X-Asaas-Token: <token_secreto_do_asaas>
 api-gerenciamento-consultas-medicas/
 ├── config/             # Configurações Django
 ├── apps/
-│   ├── core/           # Modelos base (TimestampedModel)
+│   ├── core/           # Modelos base e Exception Handler
 │   ├── professionals/  # CRUD profissionais
 │   ├── appointments/   # CRUD consultas
 │   └── auth/           # JWT endpoints
