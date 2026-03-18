@@ -13,7 +13,6 @@ from .models import Professional
 
 class ProfessionalAPITestCase(APITestCase):
     def setUp(self):
-        from rest_framework_simplejwt.tokens import RefreshToken
 
         self.user = User.objects.create_user(username="testuser", password="password")
         refresh = RefreshToken.for_user(self.user)
