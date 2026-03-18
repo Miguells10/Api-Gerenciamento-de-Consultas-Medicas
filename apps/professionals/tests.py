@@ -137,7 +137,7 @@ class ProfessionalAPITestCase(APITestCase):
     def test_delete_professional_with_appointments_error(self):
         professional = Professional.objects.create(**self.valid_payload)
         from django.utils import timezone
-        
+
         Appointment.objects.create(
             professional=professional, date=timezone.now() + timezone.timedelta(days=1)
         )
@@ -147,5 +147,5 @@ class ProfessionalAPITestCase(APITestCase):
         error_key = "message" if "message" in response.data else "error"
         self.assertIn(
             "Não é possível remover este profissional",
-            response.data.get(error_key, str(response.data))
+            response.data.get(error_key, str(response.data)),
         )
