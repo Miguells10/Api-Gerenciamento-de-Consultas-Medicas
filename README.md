@@ -30,6 +30,18 @@ Esta API foi desenvolvida com **Python + Django + Django REST Framework (DRF)**,
 
 ---
 
+## 🌐 Link de Acesso (Live API)
+
+O projeto está implantado na **AWS EC2** com deploy automatizado:
+
+- **Swagger UI (Documentação):** [https://54.205.4.26/api/docs/](https://54.205.4.26/api/docs/)
+- **API Host:** `https://54.205.4.26`
+
+> [!IMPORTANT]
+> A API utiliza certificados SSL e autenticação JWT. Para testar os endpoints via Swagger, obtenha o token no endpoint `/api/v1/auth/token/`.
+
+---
+
 ## ✅ Pré-requisitos
 
 - [Python 3.12+](https://python.org)
@@ -228,11 +240,14 @@ Após iniciar o servidor, acesse:
 poetry run python manage.py test --verbosity=2
 
 # Docker
-docker compose exec web python manage.py test --verbosity=2
+docker compose run --rm web python manage.py test --verbosity=2
 
 # Lint e Formatação (Ruff)
 uv run ruff check .   # Verificar erros
 uv run ruff check . --fix  # Corrigir automaticamente
+poetry run ruff check .      # Verificar erros
+poetry run ruff check --fix . # Corrigir erros automaticamente
+poetry run ruff format .     # Ajustar formatação (estilo Black)
 ```
 
 > **Nota:** Todos os testes automatizados utilizam **tokens JWT reais** via `setUp`, simulando fielmente o comportamento de produção.
@@ -262,6 +277,8 @@ poetry run coverage html  # Gera relatório HTML em htmlcov/
 | **Clean Code** | Código sem comentários redundantes e seguindo padrões de estilo modernos |
 | **Docker multi-stage** | Imagem de produção enxuta sem dependências de build |
 | **Blue/Green deploy** | Rollback instantâneo sem downtime |
+| **Testes com JWT Real** | Testes simulam o fluxo completo de autenticação Bearer, garantindo alinhamento com a segurança real da API |
+| **Configuração Local-First** | `settings.py` prioriza execução local (`localhost`), com overrides automáticos no `docker-compose` para garantir portabilidade total |
 
 ---
 
