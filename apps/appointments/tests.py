@@ -14,14 +14,10 @@ from .models import Appointment, AppointmentStatus
 
 class AppointmentAPITestCase(APITestCase):
     def setUp(self):
+
         self.user = User.objects.create_user(username="testuser", password="password")
-
-        # Obter token JWT para o usuário
         refresh = RefreshToken.for_user(self.user)
-        self.access_token = str(refresh.access_token)
-
-        # Configurar o cliente para incluir o cabeçalho Authorization
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.access_token}")
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {refresh.access_token}")
         self.professional = Professional.objects.create(
             social_name="Dr. Strange",
             profession="Sorcerer Supreme",
@@ -49,14 +45,14 @@ class AppointmentAPITestCase(APITestCase):
         payload["date"] = past_date
         response = self.client.post(self.list_url, payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("date", response.data)
+        self.assertIn("date", response.data["message"])
         self.assertEqual(Appointment.objects.count(), 0)
 
     def test_create_appointment_missing_professional(self):
         payload = {"date": self.future_date.isoformat()}
         response = self.client.post(self.list_url, payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("professional", response.data)
+        self.assertIn("professional", response.data["message"])
         self.assertEqual(Appointment.objects.count(), 0)
 
     def test_list_appointments(self):
@@ -113,7 +109,6 @@ class AppointmentAPITestCase(APITestCase):
             self.professional.delete()
 
     def test_unauthenticated_appointment_creation(self):
-        # Limpar as credenciais para este teste específico
         self.client.credentials()
         response = self.client.post(self.list_url, self.valid_payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -123,4 +118,11 @@ class AppointmentAPITestCase(APITestCase):
         payload["professional"] = str(uuid.uuid4())
         response = self.client.post(self.list_url, payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("professional", response.data)
+        self.assertIn("professional: Objeto não encontrado.", response.data["message"])
+
+    def test_retrieve_appointment_not_found(self):
+        url = reverse("appointment-detail", args=[uuid.uuid4()])
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data["message"], "Consulta não encontrado(a).")
+        self.assertEqual(response.data["code"], "NotFound")

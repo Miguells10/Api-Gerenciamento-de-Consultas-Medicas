@@ -25,6 +25,8 @@ env/
 
 # Django
 *.log
+*.txt
+!README.md
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
@@ -56,6 +58,7 @@ htmlcov/
 coverage.xml
 
 .agent/
+agent.md
 
 # Migrations (keep only initial, per team preference)
 # Uncomment below to ignore all migrations except initial:

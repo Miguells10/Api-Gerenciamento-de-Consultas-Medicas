@@ -1,4 +1,5 @@
 from drf_spectacular.utils import extend_schema, extend_schema_view
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.viewsets import ModelViewSet
 
 from .models import Appointment
@@ -20,4 +21,5 @@ _TAG = ["Consultas"]
 class AppointmentViewSet(ModelViewSet):
     queryset = Appointment.objects.select_related("professional").all()
     serializer_class = AppointmentSerializer
+    parser_classes = ModelViewSet.parser_classes + [FormParser, MultiPartParser]
     filterset_fields = ["professional", "status"]
