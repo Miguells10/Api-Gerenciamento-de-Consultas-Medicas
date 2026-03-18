@@ -13,6 +13,7 @@ from .models import Professional
 class ProfessionalAPITestCase(APITestCase):
     def setUp(self):
         from rest_framework_simplejwt.tokens import RefreshToken
+
         self.user = User.objects.create_user(username="testuser", password="password")
         refresh = RefreshToken.for_user(self.user)
         self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {refresh.access_token}")
@@ -114,7 +115,7 @@ class ProfessionalAPITestCase(APITestCase):
         url = reverse("professional-detail", args=[uuid.uuid4()])
         response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertEqual(response.data["message"], "Recurso não encontrado.")
+        self.assertEqual(response.data["message"], "Profissional não encontrado(a).")
         self.assertEqual(response.data["code"], "NotFound")
 
     def test_create_professional_invalid_phone_format(self):

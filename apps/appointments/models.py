@@ -27,8 +27,8 @@ class Appointment(TimestampedModel):
 
     class Meta:
         ordering = ["date"]
-        verbose_name = "Appointment"
-        verbose_name_plural = "Appointments"
+        verbose_name = "Consulta"
+        verbose_name_plural = "Consultas"
 
     def __str__(self) -> str:
         return f"Appointment({self.professional.social_name}, {self.date})"

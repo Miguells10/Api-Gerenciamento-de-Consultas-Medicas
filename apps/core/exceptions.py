@@ -13,7 +13,15 @@ def custom_exception_handler(exc, context):
         code = exc.__class__.__name__
 
         if response.status_code == status.HTTP_404_NOT_FOUND:
-            message = "Recurso não encontrado."
+            view = context.get("view")
+            model_name = "Recurso"
+            if view and hasattr(view, "get_queryset"):
+                try:
+                    model = view.get_queryset().model
+                    model_name = str(model._meta.verbose_name).capitalize()
+                except Exception:
+                    pass
+            message = f"{model_name} não encontrado(a)."
             code = "NotFound"
         elif isinstance(data, dict):
             if "detail" in data:
@@ -43,19 +51,15 @@ def custom_exception_handler(exc, context):
         else:
             message = str(data)
 
-        response.data = {
-            "status": "error",
-            "message": message,
-            "code": code
-        }
+        response.data = {"status": "error", "message": message, "code": code}
     else:
         return Response(
             {
                 "status": "error",
                 "message": "Ocorreu um erro interno no servidor.",
-                "code": "InternalServerError"
+                "code": "InternalServerError",
             },
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
     return response

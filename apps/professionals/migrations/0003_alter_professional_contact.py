@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("professionals", "0002_unique_constraints"),
     ]
@@ -19,7 +18,8 @@ class Migration(migrations.Migration):
                 unique=True,
                 validators=[
                     django.core.validators.RegexValidator(
-                        message="O contato deve estar em um formato válido (ex: 11999998888).",
+                        message="""O contato deve estar em um formato válido,
+                        (ex: 11999998888).""",
                         regex="^\\+?1?\\d{9,15}$",
                     )
                 ],

@@ -18,15 +18,16 @@ class Professional(TimestampedModel):
         validators=[
             RegexValidator(
                 regex=r"^\+?[\d\s\(\)-]{8,20}$",
-                message="O contato deve estar em um formato válido.",
+                message="""O contato deve estar em um formato válido.
+                Ex: (11) 91234-5678""",
             )
         ],
     )
 
     class Meta:
         ordering = ["social_name"]
-        verbose_name = "Professional"
-        verbose_name_plural = "Professionals"
+        verbose_name = "Profissional"
+        verbose_name_plural = "Profissionais"
 
     def save(self, *args, **kwargs):
         if self.contact:

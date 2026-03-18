@@ -14,6 +14,7 @@ from .models import Appointment, AppointmentStatus
 class AppointmentAPITestCase(APITestCase):
     def setUp(self):
         from rest_framework_simplejwt.tokens import RefreshToken
+
         self.user = User.objects.create_user(username="testuser", password="password")
         refresh = RefreshToken.for_user(self.user)
         self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {refresh.access_token}")
@@ -118,3 +119,10 @@ class AppointmentAPITestCase(APITestCase):
         response = self.client.post(self.list_url, payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("professional: Objeto não encontrado.", response.data["message"])
+
+    def test_retrieve_appointment_not_found(self):
+        url = reverse("appointment-detail", args=[uuid.uuid4()])
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data["message"], "Consulta não encontrada.")
+        self.assertEqual(response.data["code"], "NotFound")

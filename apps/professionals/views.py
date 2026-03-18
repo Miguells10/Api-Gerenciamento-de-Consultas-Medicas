@@ -1,5 +1,6 @@
 from django.db.models import ProtectedError
 from drf_spectacular.utils import extend_schema, extend_schema_view
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.viewsets import ModelViewSet
 
 from .models import Professional
@@ -19,6 +20,7 @@ _TAG = ["Profissionais"]
 class ProfessionalViewSet(ModelViewSet):
     queryset = Professional.objects.all()
     serializer_class = ProfessionalSerializer
+    parser_classes = ModelViewSet.parser_classes + [FormParser, MultiPartParser]
 
     def destroy(self, request, *args, **kwargs):
         try:
