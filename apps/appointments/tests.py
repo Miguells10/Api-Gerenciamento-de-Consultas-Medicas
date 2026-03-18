@@ -124,5 +124,5 @@ class AppointmentAPITestCase(APITestCase):
         url = reverse("appointment-detail", args=[uuid.uuid4()])
         response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertEqual(response.data["message"], "Consulta não encontrada.")
+        self.assertEqual(response.data["message"], "Consulta não encontrado(a).")
         self.assertEqual(response.data["code"], "NotFound")

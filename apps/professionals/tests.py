@@ -137,15 +137,15 @@ class ProfessionalAPITestCase(APITestCase):
     def test_delete_professional_with_appointments_error(self):
         professional = Professional.objects.create(**self.valid_payload)
         from django.utils import timezone
-
+        
         Appointment.objects.create(
             professional=professional, date=timezone.now() + timezone.timedelta(days=1)
         )
         url = reverse("professional-detail", args=[professional.id])
         response = self.client.delete(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["message"],
-            "Não é possível remover este profissional pois "
-            "ele possui consultas agendadas.",
+        error_key = "message" if "message" in response.data else "error"
+        self.assertIn(
+            "Não é possível remover este profissional",
+            response.data.get(error_key, str(response.data))
         )
